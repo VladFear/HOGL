@@ -1,0 +1,3 @@
+[submodule "GlobalEngine"]
+	path = GlobalEngine
+	url = https://github.com/VladFear/GlobalEngine.git
