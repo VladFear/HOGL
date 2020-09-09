@@ -17,7 +17,7 @@ BUILD_DIR := build
 ENGINE_DIR := GlobalEngine
 ENGINE_LIB := libglobalengine.a
 
-CXXFLAGS := -I$(INC_DIR) -I$(ENGINE_DIR)/$(INC_DIR) -g -Wall
+CXXFLAGS := -I$(INC_DIR) -I$(ENGINE_DIR)/$(INC_DIR) -g -Wall -Wextra -Werror --std=c++2a
 LD_FLAGS := $(LD_DIRS) $(LD_LIBS)
 LD_ENGINE_FLAGS := -L$(LIB_DIR) -lglobalengine
 
