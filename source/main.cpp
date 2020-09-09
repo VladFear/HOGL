@@ -4,42 +4,40 @@
 #include <memory>
 
 #include <graphics/GlobalEngine.h>
-#include <graphics/Model.h>
 #include <graphics/ShaderProgram.h>
 #include <graphics/GameScene.h>
+#include <Entity.h>
+#include <graphics/ValidationDefaultStrategy.h>
 
 int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
 {
 	try
 	{
-		std::shared_ptr<GlobalEngine> engine(new GlobalEngine(EngineAPI::OpenGL_API,
-		                                                      "GlobalEngine",
-		                                                      720,
-		                                                      480));
-
-		std::fstream vertex_shader_file("resources/shaders/vertexShader.glsl");
+		std::shared_ptr<GlobalEngine> engine =
+			std::make_shared<GlobalEngine>(EngineAPI::OpenGL_API,
+			                               "GlobalEngine",
+			                               720,
+			                               480);
 
 		std::shared_ptr<Shader> vshader = Shader::ShaderBuilder()
-			.setSource(vertex_shader_file)
+			.setSource("resources/shaders/vertexShader.glsl")
 			.create(GL_VERTEX_SHADER);
 
-		std::fstream fragment_shader_file("resources/shaders/fragmentShader.glsl");
-
 		std::shared_ptr<Shader> fshader = Shader::ShaderBuilder()
-			.setSource(fragment_shader_file)
+			.setSource("resources/shaders/fragmentShader.glsl")
 			.create(GL_FRAGMENT_SHADER);
 
-		ShaderProgram triangle;
-
-		triangle.attachShader(*vshader);
-		triangle.attachShader(*fshader);
-		triangle.compile();
+		std::shared_ptr<ShaderProgram> triangle = std::make_shared<ShaderProgram>();
+		triangle->attachShader(vshader);
+		triangle->attachShader(fshader);
+		triangle->setValidationStrategy(std::make_shared<ValidationDefaultStrategy>());
+		triangle->compile();
 
 		float vertices[] =
 		{
-			-1.0f,  0.0f, 0.0f, // Left
-			 0.5f,  0.0f, 0.0f, // Right
-			-0.25f, 1.0f, 0.0f  // Top
+			-0.75f, 0.0f, 0.0f, // Left
+			-0.25f, 0.0f, 0.0f, // Right
+			-0.50f, 0.5f, 0.0f  // Top
 		};
 
 		unsigned int indexes[] =
@@ -49,29 +47,23 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
 
 		float vertices1[] =
 		{
-			-0.5f,  0.0f, 0.0f, // Left
-			 1.0f,  0.0f, 0.0f, // Right
-			 0.25f, 1.0f, 0.0f  // Top
+			 0.25f, 0.0f, 0.0f, // Left
+			 0.75f, 0.0f, 0.0f, // Right
+			 0.50f, 0.5f, 0.0f  // Top
 		};
 
-		Model * model1 = Model::ModelBuilder()
+		std::shared_ptr<Model> model1 = Model::ModelBuilder()
 			.addVertexBuffer(vertices, sizeof(vertices) / sizeof(vertices[0]))
 			.addIndexBuffer(indexes, sizeof(indexes) / sizeof(indexes[0]))
-			.attachShaderProgram(triangle.value())
 			.create();
 
-		Model * model2 = Model::ModelBuilder()
+		std::shared_ptr<Model> model2 = Model::ModelBuilder()
 			.addVertexBuffer(vertices1, sizeof(vertices1) / sizeof(vertices1[0]))
 			.addIndexBuffer(indexes, sizeof(indexes) / sizeof(indexes[0]))
-			.attachShaderProgram(triangle.value())
 			.create();
 
-		GameScene * gameScene = new GameScene();
-
-		gameScene->addModel(model1);
-		gameScene->addModel(model2);
-
-		engine->setGameScene(gameScene);
+		engine->addGameObject(std::make_unique<Entity>(model1, triangle));
+		engine->addGameObject(std::make_unique<Entity>(model2, triangle));
 
 		engine->gameLoop();
 	}
