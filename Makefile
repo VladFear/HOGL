@@ -20,7 +20,7 @@ $(OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 $(COPY_ENGINE_LIB): engine | $(LIB_DIR)
-	cp $(ENGINE_DIR)/$(BUILD_DIR)/$(ENGINE_LIB) $(@D)
+	cp $(ENGINE_DIR)/out/$(ENGINE_LIB) $(@D)
 
 $(BUILD_DIR):
 	mkdir -p $@

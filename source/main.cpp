@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include <graphics/GlobalEngine.h>
+#include <GlobalEngine.h>
 #include <graphics/ShaderProgram.h>
 #include <graphics/GameScene.h>
 #include <Entity.h>
@@ -13,24 +13,21 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
 {
 	try
 	{
-		std::shared_ptr<GlobalEngine> engine =
-			std::make_shared<GlobalEngine>(EngineAPI::OpenGL_API,
-			                               "GlobalEngine",
-			                               720,
-			                               480);
+		std::shared_ptr<GE::GlobalEngine> engine =
+			std::make_shared<GE::GlobalEngine>(GE::EngineAPI::OpenGL);
 
-		std::shared_ptr<Shader> vshader = Shader::ShaderBuilder()
+		std::shared_ptr<GE::Shader> vshader = GE::Shader::ShaderBuilder()
 			.setSource("resources/shaders/vertexShader.glsl")
 			.create(GL_VERTEX_SHADER);
 
-		std::shared_ptr<Shader> fshader = Shader::ShaderBuilder()
+		std::shared_ptr<GE::Shader> fshader = GE::Shader::ShaderBuilder()
 			.setSource("resources/shaders/fragmentShader.glsl")
 			.create(GL_FRAGMENT_SHADER);
 
-		std::shared_ptr<ShaderProgram> triangle = std::make_shared<ShaderProgram>();
+		std::shared_ptr<GE::ShaderProgram> triangle = std::make_shared<GE::ShaderProgram>();
 		triangle->attachShader(vshader);
 		triangle->attachShader(fshader);
-		triangle->setValidationStrategy(std::make_shared<ValidationDefaultStrategy>());
+		triangle->setValidationStrategy(std::make_shared<GE::ValidationDefaultStrategy>());
 		triangle->compile();
 
 		float vertices[] =
@@ -52,20 +49,24 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
 			 0.50f, 0.5f, 0.0f  // Top
 		};
 
-		std::shared_ptr<Model> model1 = Model::ModelBuilder()
-			.addVertexBuffer(vertices, sizeof(vertices) / sizeof(vertices[0]))
-			.addIndexBuffer(indexes, sizeof(indexes) / sizeof(indexes[0]))
+		std::shared_ptr<GE::Model> model1 = GE::Model::ModelBuilder()
+			.addVertexBuffer(vertices, std::size(vertices))
+			.addIndexBuffer(indexes, std::size(indexes))
 			.create();
 
-		std::shared_ptr<Model> model2 = Model::ModelBuilder()
-			.addVertexBuffer(vertices1, sizeof(vertices1) / sizeof(vertices1[0]))
-			.addIndexBuffer(indexes, sizeof(indexes) / sizeof(indexes[0]))
+		std::shared_ptr<GE::Model> model2 = GE::Model::ModelBuilder()
+			.addVertexBuffer(vertices1, std::size(vertices1))
+			.addIndexBuffer(indexes, std::size(indexes))
 			.create();
 
-		engine->addGameObject(std::make_unique<Entity>(model1, triangle));
-		engine->addGameObject(std::make_unique<Entity>(model2, triangle));
+		engine->addGameObject(std::make_unique<GE::Entity>(model1, triangle, glm::vec3(-0.5f, 0.25f, -1.5f),
+		                                                                     glm::vec3(0.f),
+		                                                                     glm::vec3(1.f)));
+		engine->addGameObject(std::make_unique<GE::Entity>(model2, triangle, glm::vec3(-0.25f, 0.25f, -1.5f),
+		                                                                     glm::vec3(0.f),
+		                                                                     glm::vec3(1.f)));
 
-		engine->gameLoop();
+		engine->startGameLoop();
 	}
 	catch (const std::exception& e)
 	{
